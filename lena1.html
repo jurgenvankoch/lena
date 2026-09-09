@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Hey Lena 🙂</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Inter:wght@400;500;600;700&display=swap');
+:root{
+--bg:#0d1117;--surface:#161b22;--border:#30363d;--text:#e6edf3;
+--muted:#7d8590;--green:#3fb950;--green-dim:#1a3a1f;--blue:#58a6ff;--red:#f85149;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);
+min-height:100vh;display:flex;flex-direction:column;align-items:center;
+justify-content:center;padding:2rem 1rem 4rem;color-scheme:dark;}
+.container{max-width:420px;width:100%;}
+.screen{display:none;}
+.screen.active{display:block;}
+
+.repo-path{font-family:'JetBrains Mono',monospace;font-size:.72rem;
+color:var(--muted);margin-bottom:1.6rem;letter-spacing:.05em;text-align:center;}
+.repo-path span{color:var(--blue);}
+
+.card{background:var(--surface);border:1px solid var(--border);
+border-radius:14px;padding:2.2rem 1.8rem;text-align:center;}
+.emoji{font-size:3rem;display:block;margin-bottom:1rem;
+animation:float 2.8s ease-in-out infinite;}
+@keyframes float{0%,100%{transform:translateY(0);}50%{transform:translateY(-6px);}}
+.title{font-size:1.2rem;font-weight:700;line-height:1.4;margin-bottom:.5rem;}
+.sub{font-size:.85rem;color:var(--muted);line-height:1.6;margin-bottom:1.8rem;}
+
+.opt{width:100%;font-family:'Inter',sans-serif;font-size:.95rem;font-weight:500;
+padding:.9rem 1rem;margin-bottom:.6rem;border-radius:10px;border:1px solid var(--border);
+background:var(--bg);color:var(--text);cursor:pointer;transition:all .15s;text-align:left;}
+.opt:hover{border-color:var(--muted);}
+.opt.active{border-color:#238636;background:var(--green-dim);color:var(--green);}
+
+.submit{width:100%;margin-top:1rem;font-family:'Inter',sans-serif;font-size:.98rem;
+font-weight:700;background:var(--green-dim);border:1px solid #238636;border-radius:11px;
+color:var(--green);padding:1rem;cursor:pointer;transition:all .15s;}
+.submit:hover{background:#1f4a26;}
+.submit:disabled{opacity:.45;cursor:not-allowed;}
+
+.warn{font-size:.76rem;color:var(--red);margin-top:.7rem;min-height:1rem;}
+
+.summary{font-family:'JetBrains Mono',monospace;background:var(--bg);
+border:1px solid var(--border);border-radius:9px;padding:1rem;margin:.4rem 0 1.3rem;
+font-size:.9rem;color:var(--green);}
+
+.back{background:none;border:none;color:var(--muted);font-family:'JetBrains Mono',monospace;
+font-size:.72rem;cursor:pointer;margin-top:.6rem;text-decoration:underline;text-underline-offset:3px;}
+.back:hover{color:var(--text);}
+
+@keyframes fadeIn{from{opacity:0;transform:translateY(10px);}to{opacity:1;transform:translateY(0);}}
+.fade{animation:fadeIn .35s ease both;}
+@keyframes pop{0%{transform:scale(0);}70%{transform:scale(1.15);}100%{transform:scale(1);}}
+.pop{animation:pop .45s cubic-bezier(.36,.07,.19,.97);}
+@media (prefers-reduced-motion:reduce){.emoji,.fade,.pop{animation:none;}}
+</style>
+</head>
+<body>
+<div class="container">
+
+  <!-- S1 -->
+  <div id="s1" class="screen active">
+    <div class="repo-path">~ / <span>lena</span> / lena1</div>
+    <div class="card">
+      <span class="emoji">🙂</span>
+      <div class="title">Hey Lena!</div>
+      <div class="sub">worauf hättest du lust?<br>einfach antippen 👇</div>
+
+      <button class="opt" data-o="Motorrad fahren 🏍️" onclick="pick(this)">🏍️ &nbsp;Motorrad fahren</button>
+      <button class="opt" data-o="Wandern 🥾" onclick="pick(this)">🥾 &nbsp;Wandern</button>
+      <button class="opt" data-o="Paddeltennis 🎾" onclick="pick(this)">🎾 &nbsp;Paddeltennis</button>
+      <button class="opt" data-o="Essen gehen – Weinstraße 🍷" onclick="pick(this)">🍷 &nbsp;Essen – Weinstraße</button>
+      <button class="opt" data-o="Essen gehen – Slowenien 🌄" onclick="pick(this)">🌄 &nbsp;Essen – Slowenien</button>
+      <button class="opt" data-o="grad nix 🤷" onclick="pick(this)">🤷 &nbsp;nichts grad</button>
+
+      <button class="submit" id="send" disabled onclick="send()">abschicken 🙂</button>
+      <div class="warn" id="warn"></div>
+    </div>
+  </div>
+
+  <!-- S2 -->
+  <div id="s2" class="screen">
+    <div class="card">
+      <span class="emoji pop">🙂</span>
+      <div class="title">perfekt!</div>
+      <div class="summary" id="summary"></div>
+      <div class="sub" style="margin-bottom:.8rem;">ich hab's bekommen 🙂</div>
+      <button class="back" onclick="show('s1')">← doch was anderes</button>
+    </div>
+  </div>
+
+</div>
+
+<script>
+// dein Formspree-Endpoint (aktuell derselbe wie bei der anderen Seite;
+// wenn du's getrennt haben willst, leg auf formspree.io ein neues Formular an
+// und tausch die URL hier aus):
+const ENDPOINT = "https://formspree.io/f/xaqgpvrg";
+
+let choice = "";
+
+function show(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active','fade'));
+  const el=document.getElementById(id); el.classList.add('active','fade');
+  window.scrollTo(0,0);
+}
+function pick(btn){
+  document.querySelectorAll('.opt').forEach(o=>o.classList.remove('active'));
+  btn.classList.add('active');
+  choice = btn.dataset.o;
+  document.getElementById('send').disabled = false;
+  document.getElementById('warn').textContent = '';
+}
+
+async function send(){
+  if(!choice){ document.getElementById('warn').textContent='bitte was auswählen 🙂'; return; }
+  const btn = document.getElementById('send');
+  btn.disabled = true; const old = btn.textContent; btn.textContent = 'wird gesendet…';
+  try{
+    const form = new FormData();
+    form.append('Lust auf', choice);
+    form.append('_subject', 'Lena: ' + choice);
+    const res = await fetch(ENDPOINT, { method:'POST', headers:{'Accept':'application/json'}, body:form });
+    if(res.ok){
+      document.getElementById('summary').textContent = choice;
+      show('s2');
+    } else { throw new Error('Server '+res.status); }
+  } catch(e){
+    document.getElementById('warn').textContent='hat nicht geklappt — nochmal probieren?';
+  } finally {
+    btn.disabled=false; btn.textContent=old;
+  }
+}
+</script>
+</body>
+</html>
